@@ -216,8 +216,7 @@ namespace Org.Unidal.Cat.Message.Spi.Internals
             string fileName = "cat-" + domain + ".mark";
             MemoryMappedFile mmf = null;
 
-            string[] dirs = new string[] {CatConstants.CAT_FILE_DIR, Path.GetTempPath(),
-                AppDomain.CurrentDomain.BaseDirectory + @"\data\appdatas\cat"};
+            string[] dirs = new string[] {Path.GetTempPath()};
 
             bool isFirst = true;
             foreach (string dir in dirs)
@@ -227,6 +226,7 @@ namespace Org.Unidal.Cat.Message.Spi.Internals
                     try
                     {
                         mmf = CreateFileIfMissing(dir, fileName);
+                        Logger.Info("Mark file is created at " + dir);
                         break;
                     }
                     catch (Exception ex)
@@ -247,6 +247,7 @@ namespace Org.Unidal.Cat.Message.Spi.Internals
                 {
                     var mmfName = CatConstants.ID_MARK_FILE_MAP + "-" + domain;
                     mmf = MemoryMappedFile.CreateOrOpen(mmfName, CatConstants.ID_MARK_FILE_SIZE, MemoryMappedFileAccess.ReadWrite);
+                    Logger.Info("Created a non-persistent MMF");
                 }
                 catch (Exception ex)
                 { Cat.lastException = ex; }

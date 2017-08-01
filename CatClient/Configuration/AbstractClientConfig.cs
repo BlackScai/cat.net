@@ -5,6 +5,7 @@ using System.Net;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.Unidal.Cat.Util;
 
 namespace Org.Unidal.Cat.Configuration
 {
@@ -16,6 +17,7 @@ namespace Org.Unidal.Cat.Configuration
         protected const int DEFAULT_MAX_QUEUE_BYTE_SIZE = 256*1024*1024;
         private int _mMaxQueueSize = DEFAULT_MAX_QUEUE_SIZE;
         private int _mMaxQueueByteSize = DEFAULT_MAX_QUEUE_BYTE_SIZE;
+        private bool _mRouteConfigLoaded;
 
         /// <summary>
         ///   是否是开发模式
@@ -131,6 +133,11 @@ namespace Org.Unidal.Cat.Configuration
                     using (StreamReader sr = new StreamReader(stream))
                     {
                         string resultstring = sr.ReadToEnd();
+                        if (!_mRouteConfigLoaded)
+                        {
+                            Logger.Info("Load router info: " + resultstring);
+                            _mRouteConfigLoaded = true;
+                        }
                         return resultstring;
                     }
                 }

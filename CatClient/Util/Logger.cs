@@ -7,27 +7,34 @@ using System.Xml;
 namespace Org.Unidal.Cat.Util
 {
     /// <summary>
-    ///   简单记录Cat客户端的启动日志
+    ///   简单记录Cat客户端的启动日志, 记录日志不会超过512K
     /// </summary>
     public class Logger
     {
+        private const int LOG_MAX_BYTE_SIZE = 512 * 1024;
         private static StreamWriter _mWriter;
-        private static string _mLastPath;
-        private static object _mWiterLock = new object();
+        private static object _mSyncLock = new object();
         private static bool _mInitialized;
-        private static bool _mLogEnable;
-        private static string _mDomain;
+        private static string _mDomain = "unknown";
+        private static int byteSize = 0;
 
-        public static void Initialize(string domain, bool logEnable)
+        public static void Initialize(string domain)
         {
-            if (_mInitialized)
+            if (!_mInitialized)
             {
-                return;
+                lock (_mSyncLock)
+                {
+                    if (!_mInitialized)
+                    {
+                        if (!string.IsNullOrWhiteSpace(domain))
+                        {
+                            _mDomain = domain;
+                        }
+                        CreateWriter();
+                        _mInitialized = true;
+                    }
+                }
             }
-            _mDomain = domain;
-            _mLogEnable = logEnable;
-
-            _mInitialized = true;
         }
 
         public static void Debug(string pattern, params object[] args)
@@ -50,6 +57,11 @@ namespace Org.Unidal.Cat.Util
             Log("ERROR", pattern, args);
         }
 
+        public static void Error(Exception ex, string msg = "")
+        {
+            Log("ERROR", msg + "\n" + ex);
+        }
+
         public static void Fatal(string pattern, params object[] args)
         {
             Log("FATAL", pattern, args);
@@ -57,11 +69,11 @@ namespace Org.Unidal.Cat.Util
 
         private static void Log(string severity, string pattern, params object[] args)
         {
-            if (!_mLogEnable)
+            if (byteSize >= LOG_MAX_BYTE_SIZE)
             {
                 return;
             }
-            lock (_mWiterLock)
+            lock (_mSyncLock)
             {
                 try
                 {
@@ -69,7 +81,6 @@ namespace Org.Unidal.Cat.Util
                     string message = string.Format(pattern, args);
                     string line = "[" + timestamp + "] [" + severity + "] " + message;
 
-                    //StreamWriter writer = GetWriter();
                     if (_mWriter != null)
                     {
                         _mWriter.WriteLine(line);
@@ -79,56 +90,50 @@ namespace Org.Unidal.Cat.Util
                     {
                         Console.WriteLine(line);
                     }
+                    byteSize += line.Length;
                 }
                 catch (Exception e)
                 {
-                    Cat.lastException = e;
+                    Console.WriteLine(e);
                 }
             }
         }
 
-        private static StreamWriter GetWriter()
+        private static void CreateWriter()
         {
-            string path = DateTime.Now.ToString("yyyyMMdd");
-            if (!path.Equals(_mLastPath))
+            if (null != _mWriter)
             {
-                if (_mWriter != null)
-                {
-                    try
-                    {
-                        _mWriter.Close();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Cat.lastException = e;
-                    }
-                }
-
-                string logFile = "cat_" + _mDomain + "_" + path + ".log";
-
-                try
-                {
-                    if (Directory.Exists(CatConstants.CAT_HOME_TEMP) && isWritable(CatConstants.CAT_HOME_TEMP))
-                    {
-                        _mWriter = new StreamWriter(Path.Combine(CatConstants.CAT_HOME_TEMP, logFile), true);
-                        Console.WriteLine("Logger file " + Path.Combine(CatConstants.CAT_HOME_TEMP, logFile));
-                    }
-                    else if (Directory.Exists(CatConstants.CAT_HOME) && isWritable(CatConstants.CAT_HOME))
-                    {
-                        _mWriter = new StreamWriter(Path.Combine(CatConstants.CAT_HOME, logFile), true);
-                        Console.WriteLine("Logger file " + Path.Combine(CatConstants.CAT_HOME, logFile));
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Error when openning log file: " + e.Message + " " + e.StackTrace + ".");
-                    Cat.lastException = e;
-                }
+                return;
             }
+            string logFile = "cat-client-" + _mDomain + ".log";
 
-            _mLastPath = path;
-            return _mWriter;
+            _mWriter = CreateStreamWriter(Path.GetTempPath(), logFile);
+        }
+
+        private static StreamWriter CreateStreamWriter(string dir, string fileName)
+        {
+            StreamWriter writer = null;
+            try
+            {
+                if (Directory.Exists(dir) && isWritable(dir))
+                {
+                    writer = new StreamWriter(Path.Combine(dir, fileName), false);
+                    byteSize = 0;
+                    Console.WriteLine("Successfully opened log file [{0}\\{1}].", dir, fileName);
+                }
+                else
+                {
+                    Console.WriteLine("Log file [{0}\\{1}] does not exist, or is not writable.", dir, fileName);
+                    writer = null;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error when opening log file [{0}\\{1}]." + ex, dir, fileName);
+                writer = null;
+            }
+            return writer;
         }
 
         private static bool isWritable(string filename)

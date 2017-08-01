@@ -61,6 +61,7 @@ namespace Org.Unidal.Cat.Message.Spi.IO
         public void Initialize()
         {
             // Load server list from remote config
+            _mClientConfig.Refresh();
             serversFromRemoteConfig = _mClientConfig.Servers;
             Logger.Info("Max Queue Size: " + _mClientConfig.MaxQueueSize);
             Logger.Info("Max Queue Byte Size: " + _mClientConfig.MaxQueueByteSize);

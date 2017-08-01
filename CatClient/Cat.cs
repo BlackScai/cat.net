@@ -11,6 +11,7 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Globalization;
+using Com.Dianping.Cat.Configuration;
 
 namespace Org.Unidal.Cat
 {
@@ -99,9 +100,12 @@ namespace Org.Unidal.Cat
                 AbstractClientConfig config;
                 if (String.IsNullOrWhiteSpace(configFilePath))
                 {
-                    configFilePath = @"D:\data\appdatas\cat\client.xml";
+                    config = new LocalClientConfig(configFilePath);
                 }
-                config = new LocalClientConfig(configFilePath);
+                else
+                {
+                    config = new SimplifiedClientConfig();
+                }
 
                 manager.Initialize(config);
                 Instance._mProducer = new DefaultMessageProducer(manager);

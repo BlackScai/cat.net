@@ -57,6 +57,7 @@
     <Compile Include="Configuration\LocalClientConfig.cs" />
     <Compile Include="Configuration\NullClientConfig.cs" />
     <Compile Include="Configuration\Server.cs" />
+    <Compile Include="Configuration\SimplifiedClientConfig.cs" />
     <Compile Include="Message\IForkedTransaction.cs" />
     <Compile Include="Message\IMetric.cs" />
     <Compile Include="Message\Internals\DefaultForkedTransaction.cs" />

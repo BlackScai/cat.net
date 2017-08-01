@@ -1,5 +1,8 @@
 # CAT.net客户端 [![Build Status](https://travis-ci.org/ctripcorp/cat.net.png?branch=master)](https://travis-ci.org/ctripcorp/cat.net)
-为.net应用提供接入CAT的API。
+为.net应用提供接入CAT的API。该版本改变了客户端的配置方式，同时保留了原来文件的配置方式。
+
+客户端输出文件和Mark file均放置在临时文件目录，确保有临时文件目录读取权限。
+否则会导致无客户端日志以及重启之后Cat客户端messageId重复。
 
 CAT.net客户端的API设计、客户端配置方式，与[CAT Java客户端](https://github.com/dianping/cat)基本一致。
 
@@ -18,10 +21,8 @@ CAT.net客户端要求**_.NET Framework 4.0或更高版本_**。
 ![Cat DLL](doc/cat-dll-location.png)
 
 ### 配置
-1. 创建以下目录，确保执行CAT客户端的帐户有权限读写它们：
-  - `d:\data\appdatas\cat\`  (CAT客户端使用的临时数据目录)
-  - `d:\data\applogs\cat\`  (CAT客户端的日志输出目录)
-2. 创建`d:\data\appdatas\cat\client.xml`。在其中配置Domain ID和CAT服务器地址。推荐client.xml用**_UTF-8_**编码。client.xml内容如下：
+1. Cat需要有权限写临时文件，主要存放客户端启动信息以及Mark file。
+2.1 可以使用文件配置：创建`d:\data\appdatas\cat\client.xml`。在其中配置Domain ID和CAT服务器地址。推荐client.xml用**_UTF-8_**编码。client.xml内容如下：
 ```
 <?xml version="1.0" encoding="utf-8"?>
 <config mode="client" enabled="true" queue-size="123">
@@ -36,6 +37,9 @@ CAT.net客户端要求**_.NET Framework 4.0或更高版本_**。
 	</servers>
 </config>
 ```
+2.2 可以使用环境变量配置domain及cat server地址。分别为CAT_DOMAIN和CAT_SERVER。
+CAT_DOMAIN=110110
+CAT_SERVER=127.0.0.1:2281 (http端口地址)
 
 ### 执行工程自带的测试用例
 - 设置CatClientTest工程为默认启动工程：

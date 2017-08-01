@@ -57,7 +57,7 @@ namespace Org.Unidal.Cat.Configuration
                     this.MaxQueueByteSize = GetMaxQueueByteSize(root);
                     this.Domain = BuildDomain(root.GetElementsByTagName("domain"));
                     bool logEnable = BuildLogEnabled(root.GetElementsByTagName("logEnabled"));
-                    Logger.Initialize(this.Domain.Id, logEnable);
+                    Logger.Initialize(this.Domain.Id);
                     Logger.Info("Use config file({0}).", configFile);
 
                     IEnumerable<Server> servers = BuildServers(root.GetElementsByTagName("servers"));
