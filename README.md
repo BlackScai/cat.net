@@ -22,7 +22,10 @@ CAT.net客户端要求**_.NET Framework 4.0或更高版本_**。
 
 ### 配置
 1. Cat需要有权限写临时文件，主要存放客户端启动信息以及Mark file。
-2.1 可以使用文件配置：创建`d:\data\appdatas\cat\client.xml`。在其中配置Domain ID和CAT服务器地址。推荐client.xml用**_UTF-8_**编码。client.xml内容如下：
+2. 使用环境变量配置domain及cat server地址。分别为CAT_DOMAIN和CAT_SERVER。
+CAT_DOMAIN=110110
+CAT_SERVER=127.0.0.1:2281 (http端口地址)
+3. 保留了原来的文件配置方式，使用2方法配置的可以跳过该步骤。创建`d:\data\appdatas\cat\client.xml`。在其中配置Domain ID和CAT服务器地址。推荐client.xml用**_UTF-8_**编码。client.xml内容如下：
 ```
 <?xml version="1.0" encoding="utf-8"?>
 <config mode="client" enabled="true" queue-size="123">
@@ -37,9 +40,6 @@ CAT.net客户端要求**_.NET Framework 4.0或更高版本_**。
 	</servers>
 </config>
 ```
-2.2 可以使用环境变量配置domain及cat server地址。分别为CAT_DOMAIN和CAT_SERVER。
-CAT_DOMAIN=110110
-CAT_SERVER=127.0.0.1:2281 (http端口地址)
 
 ### 执行工程自带的测试用例
 - 设置CatClientTest工程为默认启动工程：
