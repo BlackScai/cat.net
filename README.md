@@ -114,9 +114,8 @@ namespace ConsoleApplication1
 ![Application Output Logview](doc/console-app-output-logview.png)
 
 ### 日志输出
-- 在client.xml中，启用`<logEnabled enabled="true"></logEnabled>` XML元素，以开启日志输出。
-- 日志输出位于`D:\data\applogs\cat`目录中：
-![Application Log File Path](doc/console-app-log-file-path.png)
+- 日志输出位于临时文件目录中：
+格式为：cat-client-{domain}.log
 
 ### 为心跳报表获取.NET性能数据
 ![Heartbeat Report](doc/heartbeat-output.png)
